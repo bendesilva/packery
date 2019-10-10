@@ -83,7 +83,7 @@ Packery.prototype._resetLayout = function() {
   } else {
     packer.width = Number.POSITIVE_INFINITY;
     packer.height = Number.POSITIVE_INFINITY;
-    packer.sortDirection = 'downwardLeftToRight';
+    packer.sortDirection = 'rightwardTopToBottom';
   }
 
   var centered = this.options.centered;

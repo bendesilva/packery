@@ -77,7 +77,6 @@ Packer.prototype.reset = function() {
   }
 
   this.sorter = sorters[ this.sortDirection ] || sorters.downwardLeftToRight;
-
 };
 
 // change x and y of rect to fit with in Packer's available spaces
