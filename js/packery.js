@@ -81,7 +81,7 @@ Packery.prototype._resetLayout = function() {
     packer.height = this.size.innerHeight + this.gutter;
     packer.sortDirection = 'rightwardTopToBottom';
   } else {
-    packer.width = this.size.innerWidth + this.gutter;
+    packer.width = Number.POSITIVE_INFINITY;
     packer.height = Number.POSITIVE_INFINITY;
     packer.sortDirection = 'downwardLeftToRight';
   }
@@ -90,9 +90,9 @@ Packery.prototype._resetLayout = function() {
   if ( centered ) {
     packer.center = {};
     packer.center.x = centered.x ||
-      ( !this.options.isHorizontal && this.size.innerWidth / 2 ) || 0;
+      ( this.size.innerWidth / 2 ) || 0;
     packer.center.y = centered.y ||
-      ( this.options.isHorizontal && this.size.innerHeight / 2 ) || 0;
+      ( this.size.innerHeight / 2 ) || 0;
     packer.sortDirection = 'centeredOutCorners';
   }
 
@@ -166,6 +166,7 @@ Packery.prototype._getContainerSize = function() {
     };
   } else {
     return {
+      width: this.maxX - this.gutter,
       height: this.maxY - this.gutter
     };
   }

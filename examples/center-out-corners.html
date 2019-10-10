@@ -9,8 +9,26 @@
   <link rel="stylesheet" href="css/basics.css" />
 
   <style>
+
+  body {
+    overflow: auto;
+  }
+
   .container {
-    width: auto;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+  }
+
+  .wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .stamp {
@@ -34,8 +52,10 @@
   <h1>centered out corners</h1>
 
   <p><button id="add">Add</button></p>
-  <div id="center-out1" class="container fluid">
-    <!-- <div class="stamp stamp1"></div> -->
+  <div class="wrapper" id="wrapper">
+    <div id="center-out1" class="container fluid">
+      <!-- <div class="stamp stamp1"></div> -->
+    </div>
   </div>
 
 <script src="../bower_components/get-style-property/get-style-property.js"></script>
@@ -52,6 +72,8 @@
 <script src="../js/packer.js"></script>
 <script src="../js/item.js"></script>
 <script src="../js/packery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js" integrity="sha256-lPE3wjN2a7ABWHbGz7+MKBJaykyzqCbU96BJWjio86U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/utils/Draggable.min.js" integrity="sha256-fxhZQb8YFj6vdv4cb0HKN95kqukmA+006HWnfWry5jc=" crossorigin="anonymous"></script>
+<script src="../js/ThrowPropsPlugin.js"></script>
 
 <script src="examples.js"></script>
 <script>
@@ -66,46 +88,37 @@ window.onload = function() {
     var pckry = new Packery( container, {
       stamp: '.stamp',
       // gutter: 10,
+      transitionDuration: 0,
       itemSelector: '.item',
-      centered: {
-        // x: 400,
-        y: 300
-      }
+      centered: true
     });
 
-    eventie.bind( container, 'click', function() {
-      var elem = event.target;
-      if ( !matchesSelector( elem, '.item' ) ) {
-        return;
-      }
-
-      pckry.remove( elem );
-      pckry.layout();
-    });
-
-    function appendItem() {
+    function appendItem(x) {
       var item = document.createElement('div');
       item.className = 'item';
-      var w = Math.floor( Math.random() * Math.random() * 100 ) + 20;
-      var h = Math.floor( Math.random() * Math.random() * 100 ) + 20;
+      item.innerText = x;
+      var w = Math.floor((Math.random() * Math.random() * 100 ) + 20 ) * 10;
+      var h = Math.floor((Math.random() * Math.random() * 100 ) + 20 ) * 10;
       item.style.width  = w + 'px';
       item.style.height = h + 'px';
       container.appendChild( item );
-      pckry.appended( item );
+      pckry.addItems( item );
+      pckry.layout()
     }
 
     itemCount = 0;
     function autoAppend() {
-      appendItem();
-      if ( itemCount++ < 100 ) {
-        setTimeout( autoAppend, 50 );
+      appendItem(itemCount);
+      if ( itemCount++ < 30 ) {
+        autoAppend()
+      } else {
       }
     }
     autoAppend();
 
     eventie.bind( document.querySelector('#add'), 'click',  appendItem );
 
-
+    Draggable.create("#center-out1", {type:"x,y", edgeResistance:0.5, throwProps:true, bounds:'#wrapper'});
 
 
   })();
