@@ -4,8 +4,7 @@
   "strict": true,
   "undef": true,
   "unused": true,
-  "predef": {
-    "Packery": true,
-    "define": false
+  "globals": {
+    "Packery": true
   }
 }

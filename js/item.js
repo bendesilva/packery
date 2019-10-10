@@ -2,164 +2,132 @@
  * Packery Item Element
 **/
 
-( function( window ) {
+( function( window, factory ) {
+  // universal module definition
+  /* jshint strict: false */ /* globals define, module, require */
+  if ( typeof define == 'function' && define.amd ) {
+    // AMD
+    define( [
+        'outlayer/outlayer',
+        './rect'
+      ],
+      factory );
+  } else if ( typeof module == 'object' && module.exports ) {
+    // CommonJS
+    module.exports = factory(
+      require('outlayer'),
+      require('./rect')
+    );
+  } else {
+    // browser global
+    window.Packery.Item = factory(
+      window.Outlayer,
+      window.Packery.Rect
+    );
+  }
 
+}( window, function factory( Outlayer, Rect ) {
 'use strict';
 
 // -------------------------- Item -------------------------- //
 
-function itemDefinition( getStyleProperty, Outlayer, Rect ) {
+var docElemStyle = document.documentElement.style;
 
-var transformProperty = getStyleProperty('transform');
+var transformProperty = typeof docElemStyle.transform == 'string' ?
+  'transform' : 'WebkitTransform';
 
 // sub-class Item
 var Item = function PackeryItem() {
   Outlayer.Item.apply( this, arguments );
 };
 
-Item.prototype = new Outlayer.Item();
+var proto = Item.prototype = Object.create( Outlayer.Item.prototype );
 
-var protoCreate = Item.prototype._create;
-Item.prototype._create = function() {
+var __create = proto._create;
+proto._create = function() {
   // call default _create logic
-  protoCreate.call( this );
+  __create.call( this );
   this.rect = new Rect();
-  // rect used for placing, in drag or Packery.fit()
-  this.placeRect = new Rect();
 };
 
-// -------------------------- drag -------------------------- //
+var _moveTo = proto.moveTo;
+proto.moveTo = function( x, y ) {
+  // don't shift 1px while dragging
+  var dx = Math.abs( this.position.x - x );
+  var dy = Math.abs( this.position.y - y );
 
-Item.prototype.dragStart = function() {
-  this.getPosition();
+  var canHackGoTo = this.layout.dragItemCount && !this.isPlacing &&
+    !this.isTransitioning && dx < 1 && dy < 1;
+  if ( canHackGoTo ) {
+    this.goTo( x, y );
+    return;
+  }
+  _moveTo.apply( this, arguments );
+};
+
+// -------------------------- placing -------------------------- //
+
+proto.enablePlacing = function() {
   this.removeTransitionStyles();
   // remove transform property from transition
   if ( this.isTransitioning && transformProperty ) {
     this.element.style[ transformProperty ] = 'none';
   }
-  this.getSize();
-  // create place rect, used for position when dragged then dropped
-  // or when positioning
-  this.isPlacing = true;
-  this.needsPositioning = false;
-  this.positionPlaceRect( this.position.x, this.position.y );
   this.isTransitioning = false;
-  this.didDrag = false;
+  this.getSize();
+  this.layout._setRectSize( this.element, this.rect );
+  this.isPlacing = true;
 };
 
-/**
- * handle item when it is dragged
- * @param {Number} x - horizontal position of dragged item
- * @param {Number} y - vertical position of dragged item
- */
-Item.prototype.dragMove = function( x, y ) {
-  this.didDrag = true;
-  var packerySize = this.layout.size;
-  x -= packerySize.paddingLeft;
-  y -= packerySize.paddingTop;
-  this.positionPlaceRect( x, y );
+proto.disablePlacing = function() {
+  this.isPlacing = false;
 };
 
-Item.prototype.dragStop = function() {
-  this.getPosition();
-  var isDiffX = this.position.x !== this.placeRect.x;
-  var isDiffY = this.position.y !== this.placeRect.y;
-  // set post-drag positioning flag
-  this.needsPositioning = isDiffX || isDiffY;
-  // reset flag
-  this.didDrag = false;
+// -----  ----- //
+
+// remove element from DOM
+proto.removeElem = function() {
+  var parent = this.element.parentNode;
+  if ( parent ) {
+    parent.removeChild( this.element );
+  }
+  // add space back to packer
+  this.layout.packer.addSpace( this.rect );
+  this.emitEvent( 'remove', [ this ] );
 };
 
-// -------------------------- placing -------------------------- //
+// ----- dropPlaceholder ----- //
 
-/**
- * position a rect that will occupy space in the packer
- * @param {Number} x
- * @param {Number} y
- * @param {Boolean} isMaxYContained
- */
-Item.prototype.positionPlaceRect = function( x, y, isMaxYOpen ) {
-  this.placeRect.x = this.getPlaceRectCoord( x, true );
-  this.placeRect.y = this.getPlaceRectCoord( y, false, isMaxYOpen );
-};
-
-/**
- * get x/y coordinate for place rect
- * @param {Number} coord - x or y
- * @param {Boolean} isX
- * @param {Boolean} isMaxOpen - does not limit value to outer bound
- * @returns {Number} coord - processed x or y
- */
-Item.prototype.getPlaceRectCoord = function( coord, isX, isMaxOpen ) {
-  var measure = isX ? 'Width' : 'Height';
-  var size = this.size[ 'outer' + measure ];
-  var segment = this.layout[ isX ? 'columnWidth' : 'rowHeight' ];
-  var parentSize = this.layout.size[ 'inner' + measure ];
-
-  // additional parentSize calculations for Y
-  if ( !isX ) {
-    parentSize = Math.max( parentSize, this.layout.maxY );
-    // prevent gutter from bumping up height when non-vertical grid
-    if ( !this.layout.rowHeight ) {
-      parentSize -= this.layout.gutter;
-    }
+proto.showDropPlaceholder = function() {
+  var dropPlaceholder = this.dropPlaceholder;
+  if ( !dropPlaceholder ) {
+    // create dropPlaceholder
+    dropPlaceholder = this.dropPlaceholder = document.createElement('div');
+    dropPlaceholder.className = 'packery-drop-placeholder';
+    dropPlaceholder.style.position = 'absolute';
   }
 
-  var max;
+  dropPlaceholder.style.width = this.size.width + 'px';
+  dropPlaceholder.style.height = this.size.height + 'px';
+  this.positionDropPlaceholder();
+  this.layout.element.appendChild( dropPlaceholder );
+};
 
-  if ( segment ) {
-    segment += this.layout.gutter;
-    // allow for last column to reach the edge
-    parentSize += isX ? this.layout.gutter : 0;
-    // snap to closest segment
-    coord = Math.round( coord / segment );
-    // contain to outer bound
-    // contain non-growing bound, allow growing bound to grow
-    var mathMethod;
-    if ( this.layout.options.isHorizontal ) {
-      mathMethod = !isX ? 'floor' : 'ceil';
-    } else {
-      mathMethod = isX ? 'floor' : 'ceil';
-    }
-    var maxSegments = Math[ mathMethod ]( parentSize / segment );
-    maxSegments -= Math.ceil( size / segment );
-    max = maxSegments;
-  } else {
-    max = parentSize - size;
+proto.positionDropPlaceholder = function() {
+  this.dropPlaceholder.style[ transformProperty ] = 'translate(' +
+    this.rect.x + 'px, ' + this.rect.y + 'px)';
+};
+
+proto.hideDropPlaceholder = function() {
+  // only remove once, #333
+  var parent = this.dropPlaceholder.parentNode;
+  if ( parent ) {
+    parent.removeChild( this.dropPlaceholder );
   }
-
-  coord = isMaxOpen ? coord : Math.min( coord, max );
-  coord *= segment || 1;
-
-  return Math.max( 0, coord );
 };
 
-Item.prototype.copyPlaceRectPosition = function() {
-  this.rect.x = this.placeRect.x;
-  this.rect.y = this.placeRect.y;
-};
+// -----  ----- //
 
 return Item;
 
-}
-
-// -------------------------- transport -------------------------- //
-
-if ( typeof define === 'function' && define.amd ) {
-  // AMD
-  define( [
-      'get-style-property/get-style-property',
-      'outlayer/outlayer',
-      './rect'
-    ],
-    itemDefinition );
-} else {
-  // browser global
-  window.Packery.Item = itemDefinition(
-    window.getStyleProperty,
-    window.Outlayer,
-    window.Packery.Rect
-  );
-}
-
-})( window );
+}));

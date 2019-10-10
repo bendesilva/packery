@@ -1,28 +1,43 @@
 {
   "name": "packery",
-  "version": "1.2.1",
-  "author": "David DeSandro / Metafizzy",
-  "description": "bin-packing layout library",
-  "main": [
-    "js/rect.js",
-    "js/packer.js",
-    "js/item.js",
-    "js/packery.js"
-  ],
+  "author": "David DeSandro",
+  "description": "Gapless, draggable grid layouts",
+  "main": "js/packery.js",
   "dependencies": {
-    "classie": "#>=1 <2",
-    "get-style-property": "desandro/get-style-property#>=1 <2",
-    "get-size": "desandro/get-size#>=1.1 <2",
-    "outlayer": ">=1.1.10 <2"
+    "get-size": "^2.0.2",
+    "outlayer": "^2.0.0"
   },
   "devDependencies": {
-    "draggabilly": "desandro/draggabilly#>=1.0.0",
-    "jquery": "~1",
+    "draggabilly": "^2.1.0",
+    "jquery": ">=2 <4",
     "jquery-ui-draggable": "https://gist.github.com/4985610.git",
-    "qunit": "1.12"
+    "jquery-bridget": "~2.0.0",
+    "qunit": "^1.15"
   },
   "ignore": [
-    "test/",
-    "examples/"
-  ]
+    "**/.*",
+    "contributing.md",
+    "package.json",
+    "gulpfile.js",
+    "sandbox/",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://packery.metafizzy.co",
+  "authors": [
+    "David DeSandro <desandrocodes@gmail.com>"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "layout",
+    "grid",
+    "draggable"
+  ],
+  "license": "GPL-3.0"
 }

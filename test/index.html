@@ -173,7 +173,9 @@
     <div class="item"></div>
   </div>
 
-  <div id="drag1" class="container">
+  <h2>Draggable</h2>
+
+  <div id="draggable" class="container">
     <div class="item i0"></div>
     <div class="item i1"></div>
     <div class="item i2"></div>
@@ -268,15 +270,21 @@
     <div class="item"></div>
   </div>
 
-<script src="../bower_components/get-style-property/get-style-property.js"></script>
+  <h2>Sub-pixel fit</h2>
+
+  <div id="sub-pixel-fit" class="container">
+    <div class="grid-sizer"></div>
+    <div class="item"></div>
+    <div class="item w2"></div>
+    <div class="item w2"></div>
+  </div>
+
 <script src="../bower_components/get-size/get-size.js"></script>
-<script src="../bower_components/matches-selector/matches-selector.js"></script>
-<script src="../bower_components/eventEmitter/EventEmitter.js"></script>
-<script src="../bower_components/eventie/eventie.js"></script>
-<script src="../bower_components/classie/classie.js"></script>
-<script src="../bower_components/doc-ready/doc-ready.js"></script>
-<script src="../bower_components/jquery/jquery.min.js"></script>
-<script src="../bower_components/jquery-bridget/jquery.bridget.js"></script>
+<script src="../bower_components/desandro-matches-selector/matches-selector.js"></script>
+<script src="../bower_components/ev-emitter/ev-emitter.js"></script>
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../bower_components/jquery-bridget/jquery-bridget.js"></script>
+<script src="../bower_components/fizzy-ui-utils/utils.js"></script>
 <script src="../bower_components/outlayer/item.js"></script>
 <script src="../bower_components/outlayer/outlayer.js"></script>
 <script src="../js/rect.js"></script>
@@ -285,27 +293,29 @@
 <script src="../js/packery.js"></script>
 
 <script src="helpers.js"></script>
-<script src="test-rect.js"></script>
-<script src="test-packer.js"></script>
 
-<script src="basics.js"></script>
-<script src="defaults-empty.js"></script>
-<script src="get-items.js"></script>
-<script src="layout.js"></script>
-<script src="layout-extra-big.js"></script>
-<script src="consecutive.js"></script>
-<script src="grid.js"></script>
-<script src="container-size.js"></script>
-<script src="remove.js"></script>
-<script src="stamped.js"></script>
-<script src="add-items.js"></script>
-<script src="prepend.js"></script>
-<script src="draggable.js"></script>
-<script src="fit.js"></script>
-<script src="jquery-plugin.js"></script>
-<script src="declarative.js"></script>
-<script src="is-init-layout.js"></script>
-<script src="hidden-items.js"></script>
+<script src="unit/test-rect.js"></script>
+<script src="unit/test-packer.js"></script>
+
+<script src="unit/basics.js"></script>
+<script src="unit/defaults-empty.js"></script>
+<script src="unit/get-items.js"></script>
+<script src="unit/layout.js"></script>
+<script src="unit/layout-extra-big.js"></script>
+<script src="unit/consecutive.js"></script>
+<script src="unit/grid.js"></script>
+<script src="unit/container-size.js"></script>
+<script src="unit/remove.js"></script>
+<script src="unit/stamped.js"></script>
+<script src="unit/add-items.js"></script>
+<script src="unit/prepend.js"></script>
+<script src="unit/draggable.js"></script>
+<script src="unit/fit.js"></script>
+<script src="unit/jquery-plugin.js"></script>
+<script src="unit/declarative.js"></script>
+<script src="unit/is-init-layout.js"></script>
+<script src="unit/hidden-items.js"></script>
+<script src="unit/sub-pixel-fit.js"></script>
 
 </body>
 </html>

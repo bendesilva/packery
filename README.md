@@ -2,45 +2,83 @@
 
 _Bin-packing layout library_
 
-See http://packery.metafizzy.co for complete docs and demos
+See [packery.metafizzy.co](https://packery.metafizzy.co) for complete docs and demos
 
 ## Install
 
-Install with [Bower](https://github.com/twitter/bower).
+### Download
 
-``` bash
-bower install packery
++ [packery.pkgd.js](https://unpkg.com/packery@2.1/dist/packery.pkgd.js) un-minified, or
++ [packery.pkgd.min.js](https://unpkg.com/packery@2.1/dist/packery.pkgd.min.js) minified
+
+### CDN
+
+Link directly to Packery files on [unpkg](https://unpkg.com).
+
+``` html
+<script src="https://unpkg.com/packery@2.1/dist/packery.pkgd.js"></script>
+<!-- or -->
+<script src="https://unpkg.com/packery@2.1/dist/packery.pkgd.min.js"></script>
 ```
 
-## Commercial license
+### Package managers
 
-Packery may be used in commercial projects and applications with the one-time purchase of a commercial license. If you are paid to do your job, and part of your job is implementing Packery, a commercial license is required.
+Bower: `bower install packery --save`
 
-http://packery.metafizzy.co/license.html
+[npm](https://www.npmjs.com/package/packery): `npm install packery --save`
 
-For non-commercial, personal, or open source projects and applications, you may use Packery under the terms of the [GPL v3 License](http://choosealicense.com/licenses/gpl-v3/). You may use Packery for free.
+## License
+
+### Commercial license
+
+If you want to use Packery to develop commercial sites, themes, projects, and applications, the Commercial license is the appropriate license. With this option, your source code is kept proprietary. Purchase a Packery Commercial License at [packery.metafizzy.co](https://packery.metafizzy.co/#commercial-license)
+
+### Open source license
+
+If you are creating an open source application under a license compatible with the [GNU GPL license v3](https://www.gnu.org/licenses/gpl-3.0.html), you may use Packery under the terms of the GPLv3.
+
+[Read more about Packery's license](https://packery.metafizzy.co/packery.html).
 
 ## Initialize
 
-### in JavaScript
+With jQuery
 
 ``` js
-var container = document.querySelector('#container');
-var myPackery = new Packery( container, {
+$('.grid').packery({
+  // options...
+  itemSelector: '.grid-item'
+});
+```
+
+With vanilla JavaScript
+
+``` js
+// vanilla JS
+var grid = document.querySelector('.grid');
+// initialize with element
+var pckry = new Packery( grid, {
+  // options...
+  itemSelector: '.grid-item'
+});
+
+// initialize with selector string
+var pckry = new Packery('.grid', {
   // options...
 });
 ```
 
-### in HTML
+With HTML
 
-Add a class of `js-packery` to your element. Options can be set in JSON in `data-packery-options`.
+Add a `data-packery` attribute to your element. Options can be set in JSON in the value.
 
 ``` html
-<div class="js-packery" data-packery-options='{ "itemSelector": ".item" }'>
+<div class="grid" data-packery='{ "itemSelector": ".grid-item" }'>
+  <div class="grid-item"></div>
+  <div class="grid-item"></div>
   ...
 </div>
 ```
 
 ---
 
-Copyright (c) 2013 Metafizzy
+By [Metafizzy](http://metafizzy.co)
