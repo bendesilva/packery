@@ -5,7 +5,7 @@
  * Licensed GPLv3 for open source use
  * or Packery Commercial License for commercial use
  *
- * http://packery.metafizzy.co
+ * https://packery.metafizzy.co
  * Copyright 2013-2018 Metafizzy
  */
 
@@ -2464,15 +2464,54 @@ var proto = Packer.prototype;
 proto.reset = function() {
   this.spaces = [];
 
-  var initialSpace = new Rect({
-    x: 0,
-    y: 0,
-    width: this.width,
-    height: this.height
-  });
+  if ( this.center ) {
+    var initialSpaces = [
+      // top left
+      new Rect ({
+        x: 0,
+        y: 0,
+        width: this.center.x,
+        height: this.center.y,
+        nearestCornerDistance: 0
+      }),
+      // top right
+      new Rect ({
+        x: this.center.x,
+        y: 0,
+        width: this.width - this.center.x,
+        height: this.center.y,
+        nearestCornerDistance: 0
+      }),
+      // bottom left
+      new Rect ({
+        x: 0,
+        y: this.center.y,
+        width: this.center.x,
+        height: this.height - this.center.y,
+        nearestCornerDistance: 0
+      }),
+      // bottom right
+      new Rect ({
+        x: this.center.x,
+        y: this.center.y,
+        width: this.width - this.center.x,
+        height: this.height - this.center.y,
+        nearestCornerDistance: 0
+      })
+    ];
+    this.spaces = this.spaces.concat( initialSpaces );
 
-  this.spaces.push( initialSpace );
-  // set sorter
+  } else {
+    var initialSpace = new Rect({
+      x: 0,
+      y: 0,
+      width: this.width,
+      height: this.height
+    });
+
+    this.spaces.push( initialSpace );
+  }
+
   this.sorter = sorters[ this.sortDirection ] || sorters.downwardLeftToRight;
 };
 
@@ -2517,8 +2556,14 @@ proto.rowPack = function( rect ) {
 
 proto.placeInSpace = function( rect, space ) {
   // place rect in space
-  rect.x = space.x;
-  rect.y = space.y;
+  if ( this.center ) {
+    rect.x = space.x >= this.center.x ? space.x : ( space.x + space.width - rect.width );
+    rect.y = space.y >= this.center.y ? space.y : ( space.y + space.height - rect.height );
+  } else {
+
+    rect.x = space.x;
+    rect.y = space.y;
+  }
 
   this.placed( rect );
 };
@@ -2533,6 +2578,7 @@ proto.placed = function( rect ) {
     // add either the original space or the new spaces to the revised spaces
     if ( newSpaces ) {
       revisedSpaces.push.apply( revisedSpaces, newSpaces );
+      this.measureNearestCornerDistance( newSpaces );
     } else {
       revisedSpaces.push( space );
     }
@@ -2548,6 +2594,29 @@ proto.mergeSortSpaces = function() {
   Packer.mergeRects( this.spaces );
   this.spaces.sort( this.sorter );
 };
+
+Packer.prototype.measureNearestCornerDistance = function( spaces ) {
+  if ( !this.center ) {
+    return;
+  }
+
+
+  for ( var i=0, len = spaces.length; i < len; i++ ) {
+    var space = spaces[i];
+    var corner = {
+      x: space.x >= this.center.x ? space.x : space.x + space.width,
+      y: space.y >= this.center.y ? space.y : space.y + space.height
+    };
+    space.nearestCornerDistance = getDistance( corner, this.center );
+  }
+
+};
+
+function getDistance( pointA, pointB ) {
+  var dx = pointB.x - pointA.x;
+  var dy = pointB.y - pointA.y;
+  return Math.sqrt( dx * dx + dy * dy );
+}
 
 // add a space back
 proto.addSpace = function( rect ) {
@@ -2606,6 +2675,10 @@ var sorters = {
   // left to right, then top down
   rightwardTopToBottom: function( a, b ) {
     return a.x - b.x || a.y - b.y;
+  },
+
+  centeredOutCorners: function ( a, b ) {
+    return a.nearestCornerDistance - b.nearestCornerDistance;
   }
 };
 
@@ -2757,7 +2830,7 @@ return Item;
  * Licensed GPLv3 for open source use
  * or Packery Commercial License for commercial use
  *
- * http://packery.metafizzy.co
+ * https://packery.metafizzy.co
  * Copyright 2013-2018 Metafizzy
  */
 
@@ -2874,18 +2947,30 @@ proto._resetLayout = function() {
   this._getMeasurements();
 
   // reset packer
-  var width, height, sortDirection;
+  var width, height, sortDirection, center;
   // packer settings, if horizontal or vertical
   if ( this._getOption('horizontal') ) {
     width = Infinity;
     height = this.size.innerHeight + this.gutter;
     sortDirection = 'rightwardTopToBottom';
   } else {
-    width = this.size.innerWidth + this.gutter;
+    width = Infinity;
     height = Infinity;
-    sortDirection = 'downwardLeftToRight';
+    sortDirection = 'rightwardTopToBottom';
   }
 
+  var centered = this.options.centered;
+
+  if ( centered ) {
+    center = {};
+    center.x = centered.x ||
+      ( this.size.innerWidth / 2 ) || 0;
+    center.y = centered.y ||
+      ( this.size.innerHeight / 2 ) || 0;
+    sortDirection = 'centeredOutCorners';
+  }
+
+  this.packer.center = center;
   this.packer.width = this.shiftPacker.width = width;
   this.packer.height = this.shiftPacker.height = height;
   this.packer.sortDirection = this.shiftPacker.sortDirection = sortDirection;
@@ -2987,6 +3072,7 @@ proto._getContainerSize = function() {
     };
   } else {
     return {
+      width: this.maxX - this.gutter,
       height: this.maxY - this.gutter
     };
   }
