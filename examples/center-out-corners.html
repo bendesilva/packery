@@ -161,8 +161,6 @@ window.onload = function() {
       let maxRow = distanceArray.map(function(row){ return Math.max.apply(Math, row); })
       let max = Math.max.apply(null, maxRow)
 
-      console.log(distanceArray, max)
-
       container.style.setProperty('--max-size', max * 2 + 'px')
       container.classList.remove('loading')
       container.classList.add('processed')
