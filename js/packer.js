@@ -80,6 +80,7 @@ proto.reset = function() {
       })
     ];
     this.spaces = this.spaces.concat( initialSpaces );
+
   } else {
     var initialSpace = new Rect({
       x: 0,

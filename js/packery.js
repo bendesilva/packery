@@ -122,28 +122,30 @@ proto._resetLayout = function() {
   this._getMeasurements();
 
   // reset packer
-  var width, height, sortDirection;
+  var width, height, sortDirection, center;
   // packer settings, if horizontal or vertical
   if ( this._getOption('horizontal') ) {
     width = Infinity;
     height = this.size.innerHeight + this.gutter;
     sortDirection = 'rightwardTopToBottom';
   } else {
-    packer.width = Number.POSITIVE_INFINITY;
-    packer.height = Number.POSITIVE_INFINITY;
-    packer.sortDirection = 'rightwardTopToBottom';
+    width = Infinity;
+    height = Infinity;
+    sortDirection = 'rightwardTopToBottom';
   }
 
   var centered = this.options.centered;
+
   if ( centered ) {
-    packer.center = {};
-    packer.center.x = centered.x ||
+    center = {};
+    center.x = centered.x ||
       ( this.size.innerWidth / 2 ) || 0;
-    packer.center.y = centered.y ||
+    center.y = centered.y ||
       ( this.size.innerHeight / 2 ) || 0;
-    packer.sortDirection = 'centeredOutCorners';
+    sortDirection = 'centeredOutCorners';
   }
 
+  this.packer.center = center;
   this.packer.width = this.shiftPacker.width = width;
   this.packer.height = this.shiftPacker.height = height;
   this.packer.sortDirection = this.shiftPacker.sortDirection = sortDirection;
